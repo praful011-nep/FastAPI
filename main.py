@@ -29,11 +29,21 @@ Load JSON Data
 2. Dump: Create data
 """
 
-def get_data():
+def laod_data():
     # Helper function
     with open("students.json", "r") as file:
         return json.load(file)
 
 @app.get('/student')
 def student():
-    return get_data()
+    return laod_data() 
+
+"""
+Path Parameters
+- variable part of URL that points to one specific thing
+"""
+# student_id is path parameter
+@app.get("/student/{student_id}") # /student/S001
+def get_id(student_id:str):
+    data = laod_data()
+    return data[student_id]
