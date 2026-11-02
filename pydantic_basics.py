@@ -73,7 +73,7 @@ class Student(BaseModel):
         if not value.replace(" ","").isalpha():
             raise ValueError("Name must contain only letters and spaces")
         return value.title() #Capital first letter of word
-    @computed_field #Pydantic will create by itself
+    @computed_field #Pydantic will create by itself: value calculated from other field
     @property # Decorator (getter)
     def grade(self) -> str:
         if self.marks >= 90:
