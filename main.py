@@ -250,3 +250,19 @@ def update_student(
     save_data(data)
 
     return {"Message": "Student Updated Successfully", "student": student}
+
+@app.delete('/delete/{student_id}')
+def delete_student(
+    student_id: str = Path(..., description="The ID of the student", examples="S001")
+):
+    data = laod_data()
+    if student_id not in data:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Student with id {student_id} not found"
+        )
+    del data[student_id]
+    save_data(data)
+    return {
+        "Message": f"Student with the id {student_id} deleted successfully"
+    }

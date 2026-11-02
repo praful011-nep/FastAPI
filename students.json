@@ -54,12 +54,5 @@
         "course": "Data Science",
         "marks": 90,
         "email": "clark@gmail.com"
-    },
-    "S009": {
-        "name": "Hari Ram",
-        "age": 45,
-        "course": "Data Analyst",
-        "marks": 91,
-        "email": "hari.ram@gmail.com"
     }
 }
