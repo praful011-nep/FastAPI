@@ -95,9 +95,27 @@ s = Student(id="S001",
             marks=88,
             email="thomas@gmail.com")
 
-print(s.id)
-print(s.name)
-print(s.age)
-print(s.course)
-print(s.marks)
-print(s.grade) #Grade is automatically created and assigned by Pydantic
+# print(s.id)
+# print(s.name)
+# print(s.age)
+# print(s.course)
+# print(s.marks)
+# print(s.grade) #Grade is automatically created and assigned by Pydantic
+#Output
+# S001
+# Thomas Kent
+# 21
+# Python
+# 88
+# A
+
+
+"""
+Step 6 MODEL_DUMP()
+turn a model back into Python dictionary (so that we can save it later)
+"""
+
+data = s.model_dump()
+# print(data)
+#Output
+#{'id': 'S001', 'name': 'Thomas Kent', 'age': 21, 'course': 'Python', 'marks': 88, 'email': 'thomas@gmail.com', 'grade': 'A'
