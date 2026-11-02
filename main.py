@@ -55,3 +55,24 @@ def get_id(
         )
     return data[student_id]
 
+"""
+Query Paramter
+- Filter and sort the data using values after the ? in the URL
+Example
+http://127.0.0.1:8000/filter?course=Python
+- ? -> after this query is present
+- course=Python -> this is a key-value pair
+"""
+
+@app.get('/filter')
+def filter_student(course:str = None):
+    data = laod_data()
+    if course ==  None:
+        return data
+
+    filter = {} 
+    for student_id, info, in data.items():
+        if info['course'] == course:
+            filter[student_id] = info
+
+    return filter
