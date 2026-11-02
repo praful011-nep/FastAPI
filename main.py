@@ -202,7 +202,7 @@ class Student(BaseModel):
 def create_student(student: Student):
     data = laod_data()
 
-    data[student.id] = student.model_dump(exclude={'id'})
+    data[student.id] = student.model_dump(exclude={'id','grade'})
     save_data(data)
 
     return {"message": "Student created successfully",
