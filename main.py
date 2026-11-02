@@ -78,3 +78,41 @@ def filter_student(
             filter[student_id] = info
 
     return filter
+
+"""
+Sorting Data:
+http://127.0.0.1:8000/sort?sort_by=marks,age,name&order=asc,desc
+
+"""
+SORT_FIELDS = ['marks', 'age','name']
+SORT_ORDER = ['asc', 'desc']
+@app.get('/sort')
+def sort_students(
+    sort_by: str = Query(None, description="Sort by marks, name, age", examples=['marks']),
+    order: str = Query(None, description="asc or desc", examples=['asc', 'desc'])
+):
+    #If the given sort_by input dosn't belongs to any (marks, age, name) we will raise an error.
+    if sort_by not in SORT_FIELDS:
+        raise HTTPException(
+            status_code= 404,
+            detail= f"Invalid sort_by {sort_by}, Choose form {SORT_FIELDS}"
+        )
+    #If the given order input dosn't belongs to any (asc, desc) we will raise an error.
+    if order not in SORT_ORDER:
+        raise HTTPException(
+            status_code= 404,
+            detail=f"Invalid order, {order}, Choose form {SORT_ORDER}"
+        )
+    data = laod_data()
+
+    #step-1 Turn the dictionary into a list, putting the ID inside each student
+    student = []
+    for student_id, info in data.items():
+        info['id'] = student_id
+        student.append(info)
+
+    #Step-2 Sort the list by the choosen field
+    reverse = (order == 'desc')
+    sorted_students = sorted(student, key = lambda s: s[sort_by ], reverse = reverse)
+
+    return sorted_students
