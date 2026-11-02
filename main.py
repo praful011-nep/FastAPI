@@ -202,6 +202,11 @@ class Student(BaseModel):
 def create_student(student: Student):
     data = laod_data()
 
+    if student.id in data:
+        raise HTTPException(
+            status_code=400, detail=f"Student with id {student.id} already exist"
+        )
+
     data[student.id] = student.model_dump(exclude={'id','grade'})
     save_data(data)
 
