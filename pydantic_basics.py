@@ -9,7 +9,7 @@ bad_student = {
     "email" :"not-an-email"
 }
 
-from pydantic import BaseModel, Field, EmailStr, field_validator
+from pydantic import BaseModel, Field, EmailStr, field_validator, computed_field
 """
 Step 2 - BASEMODEL + TYPE HINTS
 we describe a RECORD ONCE. Python checks every record against it.
@@ -73,6 +73,20 @@ class Student(BaseModel):
         if not value.replace(" ","").isalpha():
             raise ValueError("Name must contain only letters and spaces")
         return value.title() #Capital first letter of word
+    @computed_field #Pydantic will create by itself
+    @property # Decorator (getter)
+    def grade(self) -> str:
+        if self.marks >= 90:
+            return "A+"
+        elif self.marks >= 80:
+            return "A"
+        elif self.marks >= 70:
+            return "B"
+        elif self.marks >= 60:
+            return "C"
+        else:
+            return "F"
+
 
 s = Student(id="S001",
             name = "Thomas Kent",
@@ -86,3 +100,4 @@ print(s.name)
 print(s.age)
 print(s.course)
 print(s.marks)
+print(s.grade) #Grade is automatically created and assigned by Pydantic
