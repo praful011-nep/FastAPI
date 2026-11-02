@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException, Path, Query
+from pydantic import BaseModel, field_validator, EmailStr, computed_field, Field
 import json
 
 # Object of FastAPI
@@ -33,6 +34,10 @@ def laod_data():
     # Helper function
     with open("students.json", "r") as file:
         return json.load(file)
+
+def save_data(data):
+    with open("students.json",'w') as file:
+        json.dump(data, file, indent=4) # indent = 4 keeps the file readable
 
 @app.get('/student')
 def student():
@@ -148,3 +153,53 @@ def paginate_student(page:int = Query(1, ge=1, description="Which page you want(
         "total_student": total_student,
         "student": page_student
     }
+
+
+"""
+REQUEST BODY
+
+POST -> data comes in the BODY (a JSON Object sent with the request)
+
+When a function argument is a Pydantic Model, FastAPI reads it from the body
+and validates automatically, Bad Data -> 422
+"""
+class Student(BaseModel):
+    """
+    This class is responisble for validating the inputs given by user in POST
+    """
+    id      : str = Field(..., examples=["S001"])
+    name    : str = Field(..., min_length=2, max_length=50)
+    age     : int = Field(..., gt=0, le=100)
+    course  : str = Field(..., max_length=50)
+    marks   : int = Field(..., ge=0, le=100)
+    email   : EmailStr
+
+    #Custom Rule : Name must contain only letters and spaces
+    @field_validator("name")#name=Kabir singh
+    @classmethod
+    def check_name(cls, value):
+        if not value.replace(" ", "").isalpha():
+            raise ValueError("Name must contain only letters and spaces")
+        
+        return value.title()
+
+    @computed_field
+    @property
+    def grade(self) -> str:
+        if self.marks >= 90:
+            return "A+"
+        elif self.marks >= 80:
+            return "A"
+        elif self.marks >= 70:
+            return "B"
+        elif self.marks >= 60:
+            return "C"
+        else:
+            return "F"
+
+
+@app.post('/create', status_code=201)
+def create_student(student: Student):
+    data = laod_data()
+
+    data[student.id] = student.model_dump(exclude={'id'})
