@@ -119,3 +119,15 @@ data = s.model_dump()
 # print(data)
 #Output
 #{'id': 'S001', 'name': 'Thomas Kent', 'age': 21, 'course': 'Python', 'marks': 88, 'email': 'thomas@gmail.com', 'grade': 'A'
+
+"""
+Step 7 - CHECK OUR REAL DATA (students.json)
+Every student in our file will go through the Student Model
+"""
+import json
+with open("students.json",'r') as file:
+    raw_data = json.load(file)
+
+for student_id, info in raw_data.items():
+    s = Student(id = student_id, **info )
+    print(s.id, s.name, s.grade)
