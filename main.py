@@ -116,3 +116,34 @@ def sort_students(
     sorted_students = sorted(student, key = lambda s: s[sort_by ], reverse = reverse)
 
     return sorted_students
+
+"""
+Pagination
+page - which page you want
+limit - how many records on one page
+Formula:
+start = (page - 1) * limit
+end = start + limit
+"""
+
+@app.get('/paginate')
+def paginate_student(page:int, limit:int):
+    data = laod_data()
+
+    #Turn the dictionary into a list and putting the id in each record
+    student = []
+    for student_id, info in data.items():
+        info['id'] = student_id
+        student.append(info)
+
+    start = (page - 1)* limit
+    end = start+limit
+    page_student = student[start : end]
+    total_student = len(student)
+
+    return {
+        "page": page,
+        "limit": limit,
+        "total_student": total_student,
+        "student": page_student
+    }
