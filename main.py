@@ -203,3 +203,7 @@ def create_student(student: Student):
     data = laod_data()
 
     data[student.id] = student.model_dump(exclude={'id'})
+    save_data(data)
+
+    return {"message": "Student created successfully",
+            'student':student}

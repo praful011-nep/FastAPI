@@ -47,5 +47,13 @@
         "course": "JAVA",
         "marks": 88,
         "email": "atharv@example.com"
+    },
+    "S008": {
+        "name": "Clark Hughes",
+        "age": 31,
+        "course": "Data Science",
+        "marks": 90,
+        "email": "clark@gmail.com",
+        "grade": "A+"
     }
 }
