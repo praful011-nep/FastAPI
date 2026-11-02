@@ -9,7 +9,7 @@ bad_student = {
     "email" :"not-an-email"
 }
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, EmailStr
 """
 Step 2 - BASEMODEL + TYPE HINTS
 we describe a RECORD ONCE. Python checks every record against it.
@@ -38,3 +38,17 @@ class RuleStudent(BaseModel):
 # print(s.course)
 # print(s.phone)
 # print(s.marks)
+
+"""
+Step 4 - EMAILSTR
+checks the text really looks like an email.
+"""
+class EmailStudent(BaseModel):
+    name : str
+    email: EmailStr
+
+s = EmailStudent(name= "Thomas", email="thomas@gmail.com")
+print(s.name)
+print(s.email) # thomasatgmail.com: would give an error for invalid email
+
+        
