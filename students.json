@@ -61,5 +61,12 @@
         "course": "Web Development",
         "marks": 90,
         "email": "mohan.sharma@gmail.com"
+    },
+    "S010": {
+        "name": "Mark Henry",
+        "age": 21,
+        "course": "Data Science",
+        "marks": 89,
+        "email": "mark@gmail.com"
     }
 }
