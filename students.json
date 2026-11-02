@@ -54,5 +54,12 @@
         "course": "Data Science",
         "marks": 90,
         "email": "clark@gmail.com"
+    },
+    "S009": {
+        "name": "Mohan Sharma",
+        "age": 24,
+        "course": "Web Development",
+        "marks": 90,
+        "email": "mohan.sharma@gmail.com"
     }
 }

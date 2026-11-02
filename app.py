@@ -581,7 +581,7 @@ with tab_roster:
             pages = max(1, math.ceil(n / limit))
             st.session_state.page = min(st.session_state.page, pages)
             data = api("GET", f"/paginate?page={st.session_state.page}&limit={limit}")
-            rows, total, server_paged = to_rows(data["students"]), data["total_students"], True
+            rows, total, server_paged = to_rows(data.get("students", [])), data.get("total_students", data.get("total", 0)), True
         else:                                       # search/slider only → everything from GET /student
             rows = list(all_students)
 
