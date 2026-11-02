@@ -1,7 +1,7 @@
 {
     "S001": {
         "name": "Aarav Sharma",
-        "age": 25,
+        "age": 27,
         "course": "Django",
         "marks": 100,
         "email": "aarav1234@example.com"

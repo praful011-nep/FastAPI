@@ -237,7 +237,7 @@ def update_student(
     existing = data[student_id]
 
     #STEP2 : ONLY the fields the client actually sent
-    update = student_update.model_dump()
+    update = student_update.model_dump(exclude_unset=True) #exclude_unset = True -> Only the to be updated field to be edited not needing to rewrite all other records 
 
     #STEP3: COPY the new value on the top of old one.
     for key, value in update.items():
