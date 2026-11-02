@@ -212,3 +212,41 @@ def create_student(student: Student):
 
     return {"message": "Student created successfully",
             'student':student}
+
+
+class StudentUpdate(BaseModel):
+    name   : str | None = Field(None, min_length=2, max_length=50)
+    age    : int |None = Field(None, ge=0, lt=100)
+    course : str |None = Field(None, max_length=50)
+    marks  : int |None = Field(None, ge=0, le=100)
+    email  : EmailStr | None=None
+@app.put('/update/{student_id}')
+
+def update_student(
+    student_update: StudentUpdate,
+    student_id: str = Path(..., description="The ID of the student", examples="S001")
+
+):
+    data = laod_data()
+
+    if student_id not in data:
+        raise HTTPException(
+            status_code=404, detail=f"Student with id {student_id} not found"
+        )
+    #STEP1 : The student as it is right now.
+    existing = data[student_id]
+
+    #STEP2 : ONLY the fields the client actually sent
+    update = student_update.model_dump()
+
+    #STEP3: COPY the new value on the top of old one.
+    for key, value in update.items():
+        existing[key] = value
+
+    #STEP4: Check the final student again
+    student = Student(id = student_id, **existing)
+
+    data[student_id] = student.model_dump(exclude=['id', 'grade'])
+    save_data(data)
+
+    return {"Message": "Student Updated Successfully", "student": student}
