@@ -1,9 +1,19 @@
 from fastapi import FastAPI, HTTPException, Path, Query
 from pydantic import BaseModel, field_validator, EmailStr, computed_field, Field
+from fastapi.middleware.cors import CORSMiddleware
 import json
 
 # Object of FastAPI
 app = FastAPI()
+
+#CORS-> CROSS ORIGIN RESOURCE SHARING
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True, #allow cookies,
+    allow_headers=["*"], #Authorization allow
+    allow_methods=["*"]
+)
 
 #Endpoint -> where on the URL the below message must be diplayed
 @app.get('/') # Output will be displayed in homepage
