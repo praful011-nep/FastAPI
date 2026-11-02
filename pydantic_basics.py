@@ -9,7 +9,7 @@ bad_student = {
     "email" :"not-an-email"
 }
 
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import BaseModel, Field, EmailStr, field_validator
 """
 Step 2 - BASEMODEL + TYPE HINTS
 we describe a RECORD ONCE. Python checks every record against it.
@@ -48,7 +48,41 @@ class EmailStudent(BaseModel):
     email: EmailStr
 
 s = EmailStudent(name= "Thomas", email="thomas@gmail.com")
-print(s.name)
-print(s.email) # thomasatgmail.com: would give an error for invalid email
+# print(s.name)
+# print(s.email) # thomasatgmail.com: would give an error for invalid email
 
-        
+
+"""
+Step 5 - FINAL STUDENT MODEL
+1. field_validator  -> our OWN custom rule.
+2. computed_field   -> a value Pydantic calculates for US.
+"""
+
+class Student(BaseModel):
+    id: str = Field(..., examples=['S001'])
+    name: str = Field(..., min_length=2, max_length=50)
+    age: int = Field(..., gt=0, le=100)
+    course: str = Field(..., max_length=50)
+    marks: int  = Field(...,ge=0, le=100)
+    email: EmailStr
+
+    #Custom Rule: Name must contain letter and spaces
+    @field_validator("name")
+    @classmethod
+    def check_name(cls, value): #value: name
+        if not value.replace(" ","").isalpha():
+            raise ValueError("Name must contain only letters and spaces")
+        return value.title() #Capital first letter of word
+
+s = Student(id="S001",
+            name = "Thomas Kent",
+            age = 21,
+            course="Python",
+            marks=88,
+            email="thomas@gmail.com")
+
+print(s.id)
+print(s.name)
+print(s.age)
+print(s.course)
+print(s.marks)
