@@ -71,6 +71,12 @@ if db.get(StudentDB, "S002") is None:
     db.commit()
 #Read it Back
 #.query(Model) -> Creates a query to retrieve records from the Model
+#.all() -> gives all records in object format
 for i in db.query(StudentDB).all():
+    pass
+    # print(i.id, i.name, i.marks, i.course, i.email)
 
-    print(i.id, i.name, i.marks, i.course, i.email)
+#Updata records
+chris = db.get(StudentDB, "S002")
+chris.marks = 93
+db.commit()
