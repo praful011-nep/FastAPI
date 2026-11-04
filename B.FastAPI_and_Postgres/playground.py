@@ -5,7 +5,7 @@ import os
 import psycopg
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, text, Column, String, Integer
-from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.orm import DeclarativeBase, sessionmaker
 # Step-1 -> Get the URL from .env file
 
 load_dotenv()
@@ -43,3 +43,7 @@ class StudentDB(Base):
 
 #bind = engine -> Attach to: Create the table inside this database
 Base.metadata.create_all(bind=engine)
+
+#Step 4: Session = One Visit, Open, Do work, Commit, Close
+SessionLocal = sessionmaker(bind=engine)
+db = SessionLocal()
