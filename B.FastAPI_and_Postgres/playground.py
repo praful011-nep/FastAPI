@@ -47,3 +47,16 @@ Base.metadata.create_all(bind=engine)
 #Step 4: Session = One Visit, Open, Do work, Commit, Close
 SessionLocal = sessionmaker(bind=engine)
 db = SessionLocal()
+
+# Create a new data
+#.get(Model, primary_key) -> retrieves a data using its primary key
+#.add() -> creates a object in current session(not permanently saved in database)
+#.commit() -> permanently adds to the database from session
+if db.get(StudentDB, "S001") is None:
+    db.add(StudentDB(id= "S001",
+                    name = "Mark",
+                    age = 25, 
+                    course = "Python", 
+                    marks = 80, 
+                    email = 'mark@example.com'))
+    db.commit()
