@@ -61,8 +61,16 @@ if db.get(StudentDB, "S001") is None:
                     email = 'mark@example.com'))
     db.commit()
 
+if db.get(StudentDB, "S002") is None:
+    db.add(StudentDB(id= "S002",
+                    name = "Chris",
+                    age = 24, 
+                    course = "AI/ML", 
+                    marks = 89, 
+                    email = 'chris@example.com'))
+    db.commit()
 #Read it Back
-#.query() -> Creates a query to retrieve records from the Model
+#.query(Model) -> Creates a query to retrieve records from the Model
 for i in db.query(StudentDB).all():
 
     print(i.id, i.name, i.marks, i.course, i.email)
