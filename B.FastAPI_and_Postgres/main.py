@@ -1,31 +1,38 @@
 import os
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Path, Depends
 from dotenv import load_dotenv
-from sqlalchemy import create_engine, String, Integer, Column
-from sqlalchemy.orm import sessionmaker, DeclarativeBase
+from sqlalchemy import create_engine, String, Integer, Column, text
+from sqlalchemy.orm import sessionmaker, DeclarativeBase, Session
 
 # Part 1: Load DATABASE_URL from the .env file
 
 load_dotenv()
 DATABASE_URL = os.getenv('DATABASE_URL')
+# print(DATABASE_URL)
 
 # Part 2: Create the engine (connection to PostgreSQL)
 engine = create_engine(DATABASE_URL)
-
+with engine.connect() as conn:
+    version = conn.execute(text("SELECT version()")).scalar()
+    # print(f"Connected to {version.split(","[0])}")
 # Part 3: Create SessionLocal and Base
 class Base(DeclarativeBase):
     pass
 
-SessionLocal = sessionmaker(DATABASE_URL)
+SessionLocal = sessionmaker(bind = engine)
 db = SessionLocal()
 
 Base.metadata.create_all(bind=engine)
 # Part 4: Create the StudentDB table
+
 class StudentDB(Base):
-    __tablename__ = 'courses'
-    id = Column(String, primary_key=True)
-    cname = Column(String(50), nullable=False)
-    price = Column(Integer, nullable=False)
+    __tablename__ = 'student_records'
+    id      = Column(String, primary_key=True)
+    name    = Column(String(50), nullable=False)
+    age     = Column(Integer, nullable=False)
+    course  = Column(String(50), nullable=False)
+    marks   = Column(Integer, nullable=False)
+    email   = Column(String, unique=True, nullable=False)  
 
 # Part 5: Pydantic schemas for input (StudentCreate, StudentUpdate)
 from pydantic import BaseModel, Field, EmailStr, field_validator
@@ -45,7 +52,7 @@ class StudentCreate(BaseModel):
             raise ValueError("Name must contain only letters and spaces.")
         return value.title()
 
-class StudentUpdate(Base):
+class StudentUpdate(BaseModel):
     id: str | None = Field(..., examples=["S001"])
     name: str | None = Field(..., min_length=2, max_length=50)
     age: str | None = Field(..., gt=0, le=100)
@@ -72,8 +79,26 @@ def get_db():
         db.close()
     
 # Part 8: Create the FastAPI app
+app = FastAPI()
 
+@app.get('/')
+def home():
+    return "HOME PAGE"
 # Part 9: GET one student
+
+#Depends(get_db) -> Before running the endpoint, run the get_db() and give me what it returns
+@app.get('/student/{student_id}')
+def get_student(
+    student_id: str = Path(..., description="ID of Student"),
+    db: Session = Depends(get_db)
+):
+    student = db.get(StudentDB, student_id)
+    if student is None:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Student with id {student_id} not found"
+        )
+    return student
 
 # Part 10: POST - create a student
 
