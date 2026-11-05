@@ -1,5 +1,6 @@
 import os
 from fastapi import FastAPI, HTTPException, Path, Depends
+from pydantic import BaseModel, Field, EmailStr, field_validator, computed_field, ConfigDict
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, String, Integer, Column, text
 from sqlalchemy.orm import sessionmaker, DeclarativeBase, Session
@@ -35,12 +36,12 @@ class StudentDB(Base):
     email   = Column(String, unique=True, nullable=False)  
 
 # Part 5: Pydantic schemas for input (StudentCreate, StudentUpdate)
-from pydantic import BaseModel, Field, EmailStr, field_validator
+
 #Pydantic model
 class StudentCreate(BaseModel):
     id: str = Field(..., examples=["S001"])
     name: str = Field(..., min_length=2, max_length=50)
-    age: str = Field(..., gt=0, le=100)
+    age: int = Field(..., gt=0, le=100)
     email: EmailStr
     course: str = Field(..., max_length=50)
     marks: int = Field(..., ge = 0, le=100)
@@ -48,25 +49,43 @@ class StudentCreate(BaseModel):
     @field_validator("name")
     @classmethod
     def check_name(cls, value):
-        if value.replace(" ","").isalpha():
+        if not value.replace(" ","").isalpha():
             raise ValueError("Name must contain only letters and spaces.")
         return value.title()
 
 class StudentUpdate(BaseModel):
     id: str | None = Field(..., examples=["S001"])
     name: str | None = Field(..., min_length=2, max_length=50)
-    age: str | None = Field(..., gt=0, le=100)
+    age: int | None = Field(..., gt=0, le=100)
     email: EmailStr | None = None
     course: str | None = Field(..., max_length=50)
     marks: int | None= Field(..., ge = 0, le=100)
     @field_validator("name")
     @classmethod
     def check_name(cls, value):
-        if value.replace(" ","").isalpha():
+        if not value.replace(" ","").isalpha():
             raise ValueError("Name must contain only letters and spaces.")
         return value.title()
     
 # Part 6: Pydantic schemas for output (StudentResponse, StudentPage, Message)
+#from_attributes=True lets Pydantic read student.marks (an object), not only student["marks"]
+class StudentResponse(StudentCreate):
+    model_config = ConfigDict(from_attributes=True)
+
+    @computed_field
+    @property
+    def grade(self) -> str:
+        if self.marks>=90:
+            return "A+"
+        elif self.marks>=80:
+            return "A"
+        elif self.marks>=70:
+            return "B"
+        elif self.marks>=60:
+            return "C"
+        else:
+            return "F"
+
 
 # Part 7: get_db() - one session per request
 #   -Opens a session, gives it to the endpoint, always closes it,      replaces load_data/ save_data
@@ -87,7 +106,8 @@ def home():
 # Part 9: GET one student
 
 #Depends(get_db) -> Before running the endpoint, run the get_db() and give me what it returns
-@app.get('/student/{student_id}')
+#response_model -> what should the data look like
+@app.get('/student/{student_id}', response_model=StudentResponse)
 def get_student(
     student_id: str = Path(..., description="ID of Student"),
     db: Session = Depends(get_db)
