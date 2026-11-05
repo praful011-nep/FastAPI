@@ -36,7 +36,6 @@ class StudentDB(Base):
     email   = Column(String, unique=True, nullable=False)  
 
 # Part 5: Pydantic schemas for input (StudentCreate, StudentUpdate)
-
 #Pydantic model
 class StudentCreate(BaseModel):
     id: str = Field(..., examples=["S001"])
@@ -106,7 +105,7 @@ def home():
 # Part 9: GET one student
 
 #Depends(get_db) -> Before running the endpoint, run the get_db() and give me what it returns
-#response_model -> what should the data look like
+#response_model -> what should the response be
 @app.get('/student/{student_id}', response_model=StudentResponse)
 def get_student(
     student_id: str = Path(..., description="ID of Student"),
@@ -121,7 +120,29 @@ def get_student(
     return student
 
 # Part 10: POST - create a student
-
+from sqlalchemy.exc import IntegrityError
+@app.post('/CreateStudent', response_model = StudentResponse, status_code=201)
+def create_student(
+    student: StudentCreate,
+    db: Session = Depends(get_db)
+):
+    if db.get(StudentDB, student.id):
+        raise HTTPException(
+            status_code=400,
+            detail=f"Student with id {student.id} already exist"
+        )
+    new_student = StudentDB(**student.model_dump())
+    db.add(new_student)
+    try:
+        db.commit()
+    except IntegrityError:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Email {student.email} is already used by another student"
+        )
+    db.refresh()
+    return new_student
+        
 # Part 11: PUT - update a student
 
 # Part 12: DELETE - remove a student
