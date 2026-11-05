@@ -173,7 +173,19 @@ def update_student(
 
 
 # Part 12: DELETE - remove a student
-# Part 13: GET all students (filter + sort + paginate)
-# Part 12: DELETE - remove a student
+
+@app.delete('/DeleteStudent/{student_id}')
+def DeleteStudent(student_id: str = Path(..., description='ID of student'),
+                  db: Session = Depends(get_db)):
+    student = db.get(StudentDB, student_id)
+    if student is None:
+        raise HTTPException(
+            status_code=404, detail=f"Student with ID {student_id} not found"
+        )
+    db.delete(student)
+    db.commit()
+    return{
+        'message': f"Student with {student_id} deleted successfully"
+    }
 
 # Part 13: GET all students (filter + sort + paginate)
