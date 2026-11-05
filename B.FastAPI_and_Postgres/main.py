@@ -1,4 +1,5 @@
 import os
+from fastapi import FastAPI, HTTPException
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, String, Integer, Column
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
@@ -25,9 +26,39 @@ class StudentDB(Base):
     id = Column(String, primary_key=True)
     cname = Column(String(50), nullable=False)
     price = Column(Integer, nullable=False)
-    
-# Part 5: Pydantic schemas for input (StudentCreate, StudentUpdate)
 
+# Part 5: Pydantic schemas for input (StudentCreate, StudentUpdate)
+from pydantic import BaseModel, Field, EmailStr, field_validator
+#Pydantic model
+class StudentCreate(BaseModel):
+    id: str = Field(..., examples=["S001"])
+    name: str = Field(..., min_length=2, max_length=50)
+    age: str = Field(..., gt=0, le=100)
+    email: EmailStr
+    course: str = Field(..., max_length=50)
+    marks: int = Field(..., ge = 0, le=100)
+
+    @field_validator("name")
+    @classmethod
+    def check_name(cls, value):
+        if value.replace(" ","").isalpha():
+            raise ValueError("Name must contain only letters and spaces.")
+        return value.title()
+
+class StudentUpdate(Base):
+    id: str | None = Field(..., examples=["S001"])
+    name: str | None = Field(..., min_length=2, max_length=50)
+    age: str | None = Field(..., gt=0, le=100)
+    email: EmailStr | None = None
+    course: str | None = Field(..., max_length=50)
+    marks: int | None= Field(..., ge = 0, le=100)
+    @field_validator("name")
+    @classmethod
+    def check_name(cls, value):
+        if value.replace(" ","").isalpha():
+            raise ValueError("Name must contain only letters and spaces.")
+        return value.title()
+    
 # Part 6: Pydantic schemas for output (StudentResponse, StudentPage, Message)
 
 # Part 7: get_db() - one session per request
