@@ -62,7 +62,15 @@ class StudentUpdate(Base):
 # Part 6: Pydantic schemas for output (StudentResponse, StudentPage, Message)
 
 # Part 7: get_db() - one session per request
-
+#   -Opens a session, gives it to the endpoint, always closes it,      replaces load_data/ save_data
+# Opens a session, pauses at yield while the endpoint does its work and once completed its work the seeion will be closed.
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+    
 # Part 8: Create the FastAPI app
 
 # Part 9: GET one student
