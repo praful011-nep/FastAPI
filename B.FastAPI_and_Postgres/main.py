@@ -105,7 +105,7 @@ def get_db():
 # Part 8: Create the FastAPI app
 app = FastAPI()
 
-@app.get('/')
+@app.get('/',tags = ['GET ROUTE'])
 def home():
     return "HOME PAGE"
 # Part 9: GET one student
@@ -147,8 +147,7 @@ def create_student(student : StudentCreate,
 
 
 # Part 11: PUT - update a student
-@app.put('/UpdateStudent/{student_id}')
-@app.put('/UpdateStudent/{student_id}')
+@app.put('/UpdateStudent/{student_id}', tags = ['PUT ROUTE'])
 def update_student(
     student_update: StudentUpdate,
     student_id : str = Path(..., description = 'ID of Student'), 
@@ -166,6 +165,7 @@ def update_student(
     try:
         db.commit()
     except IntegrityError:
+        db.rollback() #undo changes done by commit 
         raise HTTPException(
             status_code=400,
             detail=f"Email {student.email} is already used by another student"
@@ -177,7 +177,7 @@ def update_student(
 
 # Part 12: DELETE - remove a student
 
-@app.delete('/DeleteStudent/{student_id}')
+@app.delete('/DeleteStudent/{student_id}',tags=['DELETE ROUTE'])
 def DeleteStudent(student_id: str = Path(..., description='ID of student'),
                   db: Session = Depends(get_db)):
     student = db.get(StudentDB, student_id)
@@ -195,7 +195,7 @@ def DeleteStudent(student_id: str = Path(..., description='ID of student'),
 SORT_FIELD = ['marks', 'age', 'name']
 SORT_ORDER = ['asc', 'desc']
 
-@app.get('students')
+@app.get('/students', tags=['GET ROUTE'])
 def get_all(
     course: str = Query(None, description="Show only students with this course", examples = ["Python"]), 
     sort_by: str | None = Query(None, description="Sort by age, name or marks"), 
