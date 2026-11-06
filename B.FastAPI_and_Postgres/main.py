@@ -1,8 +1,8 @@
 import os
-from fastapi import FastAPI, HTTPException, Path, Depends
+from fastapi import FastAPI, HTTPException, Path, Depends, Query
 from pydantic import BaseModel, Field, EmailStr, field_validator, computed_field, ConfigDict
 from dotenv import load_dotenv
-from sqlalchemy import create_engine, String, Integer, Column, text
+from sqlalchemy import create_engine, String, Integer, Column, text, func
 from sqlalchemy.orm import sessionmaker, DeclarativeBase, Session
 
 # Part 1: Load DATABASE_URL from the .env file
@@ -189,3 +189,41 @@ def DeleteStudent(student_id: str = Path(..., description='ID of student'),
     }
 
 # Part 13: GET all students (filter + sort + paginate)
+SORT_FIELD = ['marks', 'age', 'name']
+SORT_ORDER = ['asc', 'desc']
+
+@app.get('students')
+def get_all(
+    course: str = Query(None, description="Show only students with this course", examples = ["Python"]), 
+    sort_by: str | None = Query(None, description="Sort by age, name or marks"), 
+    order: str = Query('asc', description='asc or desc',examples = ['desc']),
+    page: int = Query(1, ge=1, description="Which page you want(start from 1)"),
+    limit:int = Query(2, ge=1, le=100, description="How many students on one page"),
+    db: Session = Depends(get_db)):
+
+    if sort_by is not None and sort_by not in SORT_FIELD:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid sort_by {sort_by}. Choose form: ({SORT_FIELD})"
+        )
+    if order not in SORT_ORDER:
+        raise HTTPException(
+            status_code=404,
+            detail=f" Invalid order {order}; Choose from ({SORT_ORDER}))"
+        )
+    query = db.query(StudentDB)
+
+    if course: 
+        query = query.filter(func.lower(StudentDB.course) == course.lower())
+
+    total_students = query.cound()
+
+    if sort_by:
+        column= getattr(StudentDB, sort_by)
+        if order == 'desc':
+            query = query.order_by(column.desc())
+        else:
+            query = query.order_by(column.asc())
+    else: 
+        query = query.order_by(StudentDB.id)
+    
