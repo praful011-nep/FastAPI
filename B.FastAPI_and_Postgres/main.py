@@ -105,6 +105,9 @@ def get_db():
 # Part 8: Create the FastAPI app
 app = FastAPI()
 
+@app.get('/')
+def home():
+    return "HOME PAGE"
 # Part 9: GET one student
 #Depends(get_db) means: "Before running this endpoint, run the get_db() function and give me what it returns."
 
@@ -144,7 +147,7 @@ def create_student(student : StudentCreate,
 
 
 # Part 11: PUT - update a student
-@app.put('/UpdateStudent/{student_id}', tags=["PUT ROUTES"])
+@app.put('/UpdateStudent/{student_id}')
 @app.put('/UpdateStudent/{student_id}')
 def update_student(
     student_update: StudentUpdate,
@@ -216,7 +219,7 @@ def get_all(
     if course: 
         query = query.filter(func.lower(StudentDB.course) == course.lower())
 
-    total_students = query.cound()
+    total_students = query.count()
 
     if sort_by:
         column= getattr(StudentDB, sort_by)
@@ -226,4 +229,18 @@ def get_all(
             query = query.order_by(column.asc())
     else: 
         query = query.order_by(StudentDB.id)
+
+    # Pagination
+    start = (page - 1) * limit
+    students = query.offset(start).limit(limit).all()
+    # previous page records are not taken and after those are taken
+
+    return{
+        "page": page,
+        "limit": limit, 
+        'total_students': total_students,
+        'students': students
+    }
+
+   
     
