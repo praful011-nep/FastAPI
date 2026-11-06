@@ -1,0 +1,30 @@
+# Two containers: our API + a PostgreSQL database
+services:    #runs the PostgreSQL database
+  db:
+    image: postgres:16
+    ports:
+      - "15432:5432"                         
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "1234"
+      POSTGRES_DB: studentdb
+    volumes:
+      - pgdata:/var/lib/postgresql/data      # keeps the data after a restart
+    healthcheck:                               # "is the database ready yet?"
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 2s
+      retries: 10
+
+  api:     #Runs the FastAPI application
+    build: .
+    ports:
+      - "8000:8001"                            # your Mac's 8000 -> container's 8000
+    environment:
+      # host is "db" (the service name above), not localhost
+      DATABASE_URL: postgresql://postgres:1234@db:5432/studentdb
+    depends_on:
+      db:
+        condition: service_healthy             # start the API only after the DB is ready
+
+volumes:
+  pgdata:
