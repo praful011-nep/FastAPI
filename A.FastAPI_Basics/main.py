@@ -5,6 +5,7 @@ import json
 
 # Object of FastAPI
 app = FastAPI()
+# For running a FastAPI server (command) for main.py-> uvicorn main:app --reload
 
 #CORS-> CROSS ORIGIN RESOURCE SHARING
 app.add_middleware(
